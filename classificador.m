@@ -1,11 +1,15 @@
 %#########  Christian Arcos  ########### 
-%###### clasificador de sinais #########
+%###### clasificador de ruidos #########
 %#######   CETUC - PUC - RIO  ##########
 
 %%%%%%  leitura de audios %%%%%%%% 
 
-[x,fs] = wavread('~/classificador/noiseComplete/babble.wav');
-[y,fs] = wavread('~/classificador/noiseComplete/white.wav');
+[e,fs] = wavread('~/classificador/noiseComplete/babble.wav');
+[u,fs] = wavread('~/classificador/noiseComplete/white.wav');
+
+x = e./max(abs(e));
+y = u./max(abs(u));
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%   segmentação  %%%%%%%%%%%%
@@ -21,46 +25,46 @@ for i = 1 : 500;
 %	disp('salio')
 	Xframe = enframe (xs(i,:),Nx,160);
 	Yframe = enframe (ys(i,:),Nx,160);
-        dd = size (Xframe,1)
+        dd = size (Xframe,1);
 	for ii = 1: dd
-%%%%%%%%%%% fft %%%%%%%%%%%%%%%%%%%%%%%%%%%
-		X = abs(fft(Xframe(ii,:),NFFT));
-                Y = abs(fft(Yframe(ii,:),NFFT));
-		magx1 = X(1:NFFT/2);
-                magy1 = Y(1:NFFT/2);
+%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     %%%%%%%% PDS %%%%%%%%%%%%
-                X1 = fft(Xframe(ii,:),NFFT);
-		PDSx = X1.*conj(X1);
-                magx = PDSx(1:NFFT/2);
-        	Y1 = fft(Yframe(ii,:),NFFT);
-		PDSy = Y1.*conj(Y1);
-        	magy = PDSy(1:NFFT/2);
+   %%%%%%%%%%% fft %%%%%%%%%%%%
+                X1 = abs(fft(Xframe(ii,:),NFFT));
+		X = X1/(fs*NFFT);
+        	Y1 = abs(fft(Yframe(ii,:),NFFT));
+		Y = Y1/(fs*NFFT);
+		magx = X(1:NFFT/2);
+		magy = Y(1:NFFT/2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      %%%%%%%% lpc %%%%%%%%%%%%
-
-		p = fs/1000 + 4;
+		p = fs/1000 + 4
 		f = fs/2*linspace(0,1,NFFT/2);
-		[a,g] = ilpc (magx,p);
-		[b,h] = ilpc (magy,p);
-                [a1,g1] = ilpc (magx1,p);
-                [b1,h1] = ilpc (magy1,p);
+                [a,g] = lpc (Xframe(ii,:),p);
+                [b,h] = lpc (Yframe(ii,:),p);
 		lspecX = freqz(g,a,f,fs);
                 lspecY = freqz(h,b,f,fs);
-                lspecX1 = freqz(g1,a1,f,fs);
-                lspecY1 = freqz(h1,b1,f,fs);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% segmentation in 5 bands %%%%%%%%
+		init = 1;
+		incr = 32;
+		for i = 1 : 5
+			bandaX = lspecX(init:incr);
+			bandaY = lspecY(init:incr);
+			freq = f(init:incr);
+			init = incr +1
+			incr *=2
+		end
         	l = length(Xframe(1,:));
         	t = 0:T:(l-1)*T;
-		subplot(4,1,1), plot(t,Xframe(1,:))
-		subplot(4,1,2), plot(f,10*log(magx/NFFT)) 
-                subplot(4,1,3), plot(t,Yframe(1,:))
-                subplot(4,1,4), plot(f,10*log(magy/NFFT))
-		figure
-                subplot(4,1,1), plot(f,20*log10(abs(lspecX1)),'k')
-		subplot(4,1,2), plot(f,20*log10(abs(lspecX)),'k')
-                subplot(4,1,3), plot(f,20*log10(abs(lspecY1)),'k')
-		subplot(4,1,4), plot(f,20*log10(abs(lspecY)),'k')
+		subplot(6,1,1), plot(t,Xframe(1,:))
+		subplot(6,1,2), plot(f,10*log10(magx))
+                subplot(6,1,3), plot(f,20*log10(abs(lspecX)),'k')
+                subplot(6,1,4), plot(t,Yframe(1,:))
+                subplot(6,1,5), plot(f,10*log10(magy))
+		subplot(6,1,6), plot(f,20*log10(abs(lspecY)),'k')
 		pause
+		
 	end
 
 end
