@@ -45,18 +45,7 @@ else
                 ii = find(d==k);
                 plot(zi(ii),zj(ii),[col(k+1) mar(k+1)]);
                 hold on
-                if scflag
-                    for ic=1:length(ii)
-                        text(zi(ii(ic)),zj(ii(ic)),['  ' num2str(sc(ii(ic)))]);
-                    end
-                end
                 
-            end
-            if i==1
-                ylabel(yl)
-            end
-            if j==m
-                xlabel(xl)
             end
         end
     end
