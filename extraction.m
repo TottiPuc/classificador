@@ -25,17 +25,21 @@ if nargin == 3
 	outdevtimeX = [];
 	outmeanspecX = [];
 	outdevspecX = [];
+	cruzezeroX =[];
+	cruztotalX= [];
 	%cont = 0
 	for i = 1 : 500;
-		Xframe = enframe (xs(i,:),Nx,160);
+		Xframe = enframe (xs(i,:),Nx);
 	        dd = size (Xframe,1);
 		for ii = 1: dd
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%% frame to time %%%%%%
+			Xt = Xframe(ii,:);
+			
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	        %%%%%%%%%%% fft %%%%%%%%%%%%
-
                 	X1 = abs(fft(Xframe(ii,:),NFFT));
-			X = X1/(fs*NFFT);
+			X = (X1/(fs*NFFT));
 			magx = X(1:NFFT/2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	          %%%%%%%%%% lpc %%%%%%%%%%%%
@@ -44,21 +48,32 @@ if nargin == 3
 			f = fs/2*linspace(0,1,NFFT/2);
         	        [a,g] = lpc (Xframe(ii,:),p);
 			lspecX = abs(freqz(g,a,f,fs));
+			%plot (f, magx)
+			%figure 
+			%plot (f, lspecX)
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	     %%%%%% segmentation in 5 bands %%%%%%%%
-	     %%%  entropy spectral calculation %%%%
+        %%%  entropy spectral and zerocross calculation %%%%
 
-			init = 1;
-			incr = 32;
+			initX = 1;
+			incrX = 32;
+			initY = 1;
+                        incrY = 20;
 		
 			for i = 1 : 5
-				bandaX = lspecX(init:incr);
+				bandaY = Xt(initY:incrY);
+				bandaX = lspecX(initX:incrX);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	     %%%%%%%%%% spectral features band %%%%%%%%%%%
 
-				EntropyX = wentropy(bandaX, 'log energy');
+				%EntropyX = wentropy(bandaX, 'log energy')
+				EntropyX = entropy(bandaX);
 				attributeX(i)=EntropyX;
+				cruzeX = zerocros(bandaY);
+				long = length(cruzeX);
+				cruzesX(i) = long;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	    %%%%%%%%%% time features band %%%%%%%%%%%%
@@ -67,14 +82,19 @@ if nargin == 3
 				varbandX = std(bandaX);
 				meantimeX(i) = mediabandX;
 				stdtimeX(i) = varbandX;
-				init = incr +1;
-				incr *=2;
+
+                                initY = incrY +1;
+                                incrY *=2;
+					
+				initX = incrX +1;
+				incrX *=2;
 			end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	   %%%%%%%  database spectral for band %%%%%%%%%
 
 			outdivX = [outdivX ; attributeX];
+			cruzezeroX = [cruzezeroX; cruzesX];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	     %%%%%%%  database time for band %%%%%%%%%%
 	
@@ -84,19 +104,21 @@ if nargin == 3
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	   %%%%%%% database spectral for frame %%%%%%
-
-			EntropyOriX = wentropy(lspecX, 'log energy');
+			EntropyOriX = entropy(lspecX);
+			%EntropyOriX = wentropy(lspecX, 'log energy');
 			outoriX = [outoriX ; EntropyOriX];
-
+			cruzToX = zerocros(Xt);
+			long = length(cruzToX);
+			cruztotalX = [cruztotalX; long];
+			
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	     %%%%%%  database time for frame %%%%%%
 
-			meanframeX = 10*log10(mean(lspecX));
-			varframeX = 10*log10(std(lspecX));
+			meanframeX = (mean(lspecX));
+			varframeX = (std(lspecX));
 			outmeanspecX = [outmeanspecX ; meanframeX];
         	        outdevspecX = [outdevspecX ; varframeX];
-
 		end
 	%cont +=1
 
@@ -105,18 +127,17 @@ else
 	error('only audio, frequency and decision')
 end
 %%%%%%%%%%%%%%%% outputs according to decision %%%%%%%%%%%%%%%%%%%%%%%
-cont = 0;
 if varargin{3} == 1
-cont += 1
 	varargout{1} = outdivX;
-	varargout{2} = outmeantimeX;
-	varargout{3} = outdevtimeX;
+	varargout{2} = cruzezeroX;
+	varargout{3} = outmeantimeX;
+	varargout{4} = outdevtimeX;
 
 elseif varargin{3} == 2
-cont += 1
 	varargout{1} = outoriX;
-	varargout{2} = outmeanspecX;
-	varargout{3} = outdevspecX;
+	varargout{2} = cruztotalX;
+	varargout{3} = outmeanspecX;
+	varargout{4} = outdevspecX;
 else 
 	error('invalid variable  decision "d" ')
 end
