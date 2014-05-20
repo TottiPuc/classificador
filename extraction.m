@@ -78,8 +78,8 @@ if nargin == 3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	    %%%%%%%%%% time features band %%%%%%%%%%%%
 
-				mediabandX = mean(bandaX);
-				varbandX = std(bandaX);
+				mediabandX = mean(bandaY);
+				varbandX = std(bandaY);
 				meantimeX(i) = mediabandX;
 				stdtimeX(i) = varbandX;
 
@@ -115,8 +115,10 @@ if nargin == 3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	     %%%%%%  database time for frame %%%%%%
 
-			meanframeX = (mean(lspecX));
-			varframeX = (std(lspecX));
+			%meanframeX = (mean(lspecX));
+			%varframeX = (std(lspecX));
+                        meanframeX = (mean(Xt));
+                        varframeX = (std(Xt));
 			outmeanspecX = [outmeanspecX ; meanframeX];
         	        outdevspecX = [outdevspecX ; varframeX];
 		end

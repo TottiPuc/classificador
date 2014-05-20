@@ -28,7 +28,7 @@ if d == 1
 	Y = [[X1E,X1Z,X1M,X1D,labelX1E]; [X2E,X2Z,X2M,X2D,labelX2E]; [X3E,X3Z,X3M,X3D,labelX3E]; [X4E,X4Z,X4M,X4D,labelX4E]];
 	%Y = [[X1E,X1Z,X1M,X1D]; [X2E,X2Z,X2M,X2D]; [X3E,X3Z,X3M,X3D]; [X4E,X4Z,X4M,X4D]];
 	%X1 = [[X1M,X1D]; [X2M,X2D]; [X3M,X3D]; [X4M,X4D]];
-	%labels = [labelX1E; labelX2E; labelX3E; labelX4E];
+	labels = [labelX1E; labelX2E; labelX3E; labelX4E];
 size(Y)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% features full frame %%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,7 +51,7 @@ elseif d == 2
 	%X1 = [[X1M,X1D]; [X2M,X2D]; [X3M,X3D]; [X4M,X4D]];
         %X2 = [[X1E,X1D]; [X2E,X2D]; [X3E,X3D]; [X4E,X4D]];
         %X3 = [[X1M,X1E]; [X2M,X2E]; [X3M,X3E]; [X4M,X4E]];
-        %labels = [labelX1E; labelX2E; labelX3E; labelX4E];
+        labels = [labelX1E; labelX2E; labelX3E; labelX4E];
 	
 else
 
@@ -62,14 +62,14 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%      plot features     %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%plotfeatures(Y,labels)
+%plotfeatures(X,labels)
 %figure
 %plotfeatures(X2,labels)
 %figure
 %plotfeatures(X3,labels)
-
-%save ../bands.txt Y -ascii
-save ../full.txt  X -ascii
+%pause
+save ../bands.txt Y -ascii
+%save ../full.txt  X -ascii
 
 
 
